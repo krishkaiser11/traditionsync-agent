@@ -1,8 +1,9 @@
 import os
-import google.auth
 
 # Force Vertex AI routing and credential binding inside the app code itself
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Lenovo\AppData\Roaming\gcloud\application_default_credentials.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
+    r"C:\Users\Lenovo\AppData\Roaming\gcloud\application_default_credentials.json"
+)
 os.environ["GOOGLE_CLOUD_PROJECT"] = "furniturestoreapp-446cd"
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
@@ -13,14 +14,21 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
 
+from app.mcp_server import execute_inventory_query
 from app.skills.billing_skill import BillingSkill
 from app.skills.collateral_skill import CollateralSkill
-from app.mcp_server import execute_inventory_query
 
-def structure_order(client_name: str, item_type: str, dimensions: str, quantity: int = 1, price_per_unit: float = 0.0) -> str:
+
+def structure_order(
+    client_name: str,
+    item_type: str,
+    dimensions: str,
+    quantity: int = 1,
+    price_per_unit: float = 0.0,
+) -> str:
     """
     Use this tool to process incoming raw order parameters into a clean, relational JSON format.
-    
+
     Args:
         client_name: Name of the client
         item_type: Type of item being ordered
@@ -28,23 +36,21 @@ def structure_order(client_name: str, item_type: str, dimensions: str, quantity:
         quantity: Number of items ordered
         price_per_unit: Price per individual unit
     """
-    return BillingSkill.process_order_to_json(client_name, item_type, dimensions, quantity, price_per_unit)
+    return BillingSkill.process_order_to_json(
+        client_name, item_type, dimensions, quantity, price_per_unit
+    )
+
 
 def generate_collateral(order_json_str: str) -> str:
     """
     Use this tool to generate a formatted markdown receipt and a WhatsApp summary from structured JSON order data.
-    
+
     Args:
         order_json_str: Structured JSON order data
     """
     receipt = CollateralSkill.generate_receipt(order_json_str)
     whatsapp = CollateralSkill.generate_whatsapp_summary(order_json_str)
-    
-    state_record = {
-        "status": "Saved safely",
-        "receipt": receipt,
-        "whatsapp": whatsapp
-    }
+
     return f"State change saved securely. Here is your final collateral:\n\n=== Receipt ===\n{receipt}\n\n=== WhatsApp Summary ===\n{whatsapp}"
 
 

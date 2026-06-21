@@ -1,19 +1,20 @@
 import json
 
+
 class CollateralSkill:
     """
-    Skill for generating client-facing collateral like receipts or WhatsApp summaries 
+    Skill for generating client-facing collateral like receipts or WhatsApp summaries
     from structured order data.
     """
-    
+
     @staticmethod
     def generate_receipt(order_json_str: str) -> str:
         """
         Takes structured JSON order data and formats a polished markdown receipt.
-        
+
         Args:
             order_json_str (str): JSON string containing processed order data.
-            
+
         Returns:
             str: Formatted markdown string.
         """
@@ -21,16 +22,18 @@ class CollateralSkill:
             data = json.loads(order_json_str)
         except json.JSONDecodeError:
             return "Error: Invalid order data format."
-            
+
         client_name = data.get("client", {}).get("name", "Valued Client")
         item_type = data.get("order", {}).get("item_type", "Item")
-        dimensions = data.get("order", {}).get("specifications", {}).get("dimensions", "N/A")
+        dimensions = (
+            data.get("order", {}).get("specifications", {}).get("dimensions", "N/A")
+        )
         pricing = data.get("order", {}).get("pricing", {})
-        
+
         quantity = pricing.get("quantity", 1)
         total_price = pricing.get("total_price", 0.0)
         currency = pricing.get("currency", "USD")
-        
+
         receipt = (
             f"# Order Receipt\n"
             f"**Client:** {client_name}\n\n"
@@ -53,14 +56,14 @@ class CollateralSkill:
             data = json.loads(order_json_str)
         except json.JSONDecodeError:
             return "Error: Invalid order data format."
-            
+
         client_name = data.get("client", {}).get("name", "Valued Client")
         item_type = data.get("order", {}).get("item_type", "Item")
         pricing = data.get("order", {}).get("pricing", {})
-        
+
         total_price = pricing.get("total_price", 0.0)
         currency = pricing.get("currency", "USD")
-        
+
         message = (
             f"Hello {client_name}! 👋\n\n"
             f"Here is a quick summary of your order:\n"
